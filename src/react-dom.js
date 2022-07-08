@@ -6,6 +6,8 @@ import { REACT_TEXT } from "./constants";
  */
 
 function render(vdom, container) {
+  debugger;
+  console.log(vdom);
   const newDom = createDom(vdom);
 
   container.appendChild(newDom);
@@ -16,6 +18,8 @@ function createDom(vdom) {
   let dom;
   if (type === REACT_TEXT) {
     dom = document.createTextNode(props.content);
+  } else if (typeof type === "function") {
+    mountFunctionComponent(vdom);
   } else {
     dom = document.createElement(type);
   }
@@ -37,6 +41,12 @@ function reconcileChildren(childrenVdom, parentDOM) {
     let childVdom = childrenVdom[i];
     render(childVdom, parentDOM);
   }
+}
+
+function mountFunctionComponent(vdom) {
+  let { type, props } = vdom;
+  let renderVdom = type(props);
+  return createDom(renderVdom);
 }
 
 function updateProps(dom, oldProps, newProps) {
