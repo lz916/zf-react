@@ -1,4 +1,5 @@
 import { wrapToVdom } from "./utils";
+import Component from "./component";
 /**
  * @param {*} type 类型
  * @param {*} config 配置对象
@@ -23,6 +24,7 @@ function createElement(type, config, children) {
 
 const React = {
   createElement,
+  Component,
 };
 
 export default React;

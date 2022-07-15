@@ -1,35 +1,48 @@
-import ReactDOM from "./react-dom";
-import React from "./react";
+import ReactDOM from "react-dom";
+import React from "react";
 
 /**
- * JSX其实是React的语法糖（javascript+xml html）
+ * state的更新可能时异步
+ * 出于性能考虑React可能会把多个setState合并成同一个调用
+ * 如何判断它是同步还是异步，是不是批量
+ * 一个原则是方式React能管控的地方，批量的异步的，如事件处理函数，生命周期函数
+ * 不能管控的地方就是同步的，非批量的，如setInterval setTimeout 原生DOM事件
  */
-// let element = <h1>hello</h1>;
-// 讲过babel转义后
-// let element = React.createElement("div", null, "hello");
-
-// 函数组件其实是一个函数，接受props，返回一个React元素
-function FunctionComponent(props) {
-  return <h1>hello, {props.name}</h1>;
-  //   return React.createElement("div", null, "hello,", props.name);
+class Counter extends React.Component {
+  state = { number: 0 }; // 定义状态有两种方式
+  // 在事件处理函数中，setState的调用会批量执行
+  // 在事件处理函数，setState并不会修改this.stat 等事件处理函数结束后再进行更新
+  // 如果要setState是同步的，可以在外面加setTimeOut
+  // setState的同步异步不是js的同步异步而是说是否是批量的
+  handleClick = () => {
+    this.setState({
+      number: this.state.number + 1,
+    });
+    console.log(this.state.number);
+    this.setState({
+      number: this.state.number + 1,
+    });
+    console.log(this.state.number);
+    // 在其他react不能管控的地方，就是同步执行
+    setTimeout(() => {
+      this.setState({
+        number: this.state.number + 1,
+      });
+      console.log(this.state.number);
+      this.setState({
+        number: this.state.number + 1,
+      });
+      console.log(this.state.number);
+    }, 0)
+  };
+  render() {
+    return (
+      <div>
+        <p>{this.state.number}</p>
+        <button onClick={this.handleClick}>+</button>
+      </div>
+    );
+  }
 }
 
-let element = React.createElement(FunctionComponent, { name: "lz" });
-
-// 所谓的渲染就是按照react元素所描述的结构，创建真实DOM元素，并插入root容器内
-// // 会有ReactDOM来确保浏览器的真实DOM和虚拟DOM一致
-// ReactDOM.render(element, document.getElementById("root"));
-ReactDOM.render(element, document.getElementById("root"));
-
-/** 虚拟dom
- * {
-    "type": "h1",
-    "key": null,
-    "ref": null,
-    "props": {
-        "children": "hello"
-    },
-    "_owner": null,
-    "_store": {}
-}
-*/
+ReactDOM.render(<Counter />, document.getElementById("root"));
