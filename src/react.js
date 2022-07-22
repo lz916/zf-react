@@ -9,7 +9,17 @@ import Component from "./component";
  */
 
 function createElement(type, config, children) {
-  let props = { ...config };
+  let ref; // 用来获取虚拟DOM实例的
+  let key; // 用来区分同一个父亲的不同儿子的
+  if (config) {
+    delete config._source;
+    delete config._self;
+    ref = config.ref;
+    delete config.ref;
+    key = config.key;
+    delete config.key;
+  }
+  let props = { ...config }; // 没有ref和key的
   if (arguments.length > 3) {
     props.children = Array.prototype.slice.call(arguments, 2).map(wrapToVdom);
   } else {
@@ -19,12 +29,30 @@ function createElement(type, config, children) {
   return {
     type,
     props,
+    ref,
+    key,
+  };
+}
+
+function createRef() {
+  return {
+    current: null,
+  };
+}
+
+function forwardRef(FunctionComponent) {
+  return class extends Component {
+    render() {
+      return FunctionComponent(this.props, this.props.ref);
+    }
   };
 }
 
 const React = {
   createElement,
   Component,
+  createRef,
+  forwardRef,
 };
 
 export default React;

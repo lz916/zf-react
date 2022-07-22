@@ -1,5 +1,5 @@
 import { REACT_TEXT } from "./constants";
-import addEvent  from "./event";
+import addEvent from "./event";
 /**
  * 把虚拟DOM转成真是DOM插入到容器中
  * @param {} vdom
@@ -12,7 +12,7 @@ function render(vdom, container) {
 }
 
 function createDom(vdom) {
-  let { props, type } = vdom;
+  let { props, type, ref } = vdom;
   let dom;
   if (type === REACT_TEXT) {
     dom = document.createTextNode(props.content);
@@ -36,6 +36,9 @@ function createDom(vdom) {
     }
   }
   // 让虚拟DOM的dom属性指向它的真实DOM
+  if (ref) {
+    ref.current = dom;
+  }
   vdom.dom = dom;
   return dom;
 }
@@ -48,10 +51,13 @@ function reconcileChildren(childrenVdom, parentDOM) {
 }
 
 function mountClassComponent(vdom) {
-  let { type, props } = vdom;
+  let { type, props, ref } = vdom;
   const classInstance = new type(props);
+  if (classInstance.componentWillMount) classInstance.componentWillMount();
   let renderVdom = classInstance.render();
+  if (classInstance.componentDidMount) classInstance.componentDidMount();
   classInstance.oldRenderVdom = vdom.oldRenderVdom = renderVdom;
+  if (ref) ref.current = classInstance;
   return createDom(renderVdom);
 }
 function mountFunctionComponent(vdom) {
@@ -76,8 +82,7 @@ function updateProps(dom, oldProps, newProps) {
     } else if (key.startsWith("on")) {
       // onClick 绑定事件
       // dom[key.toLocaleLowerCase()] = newProps[key];
-      addEvent(dom, key.toLocaleLowerCase(), newProps[key])
-
+      addEvent(dom, key.toLocaleLowerCase(), newProps[key]);
     } else {
       dom[key] = newProps?.[key];
     }
@@ -102,15 +107,15 @@ export const findDOM = (vdom) => {
 /**
  * 比较新旧的虚拟dom，找出差异，更新到真实dom上
  * 现在还没实现dom-diff
- * @param {*} parentDOM 
- * @param {*} oldVdom 
- * @param {*} newVdom 
+ * @param {*} parentDOM
+ * @param {*} oldVdom
+ * @param {*} newVdom
  */
 
 export const compareTowVdom = (parentDOM, oldVdom, newVdom) => {
-  let oldDOM= findDOM(oldVdom)
-  let newDOM = createDom(newVdom)
-  parentDOM.reconcileChildren(newDOM, oldDOM)
+  let oldDOM = findDOM(oldVdom);
+  let newDOM = createDom(newVdom);
+  parentDOM.reconcileChildren(newDOM, oldDOM);
   // const { type } = vdom;
   // let dom;
   // if (typeof type === "function") {
