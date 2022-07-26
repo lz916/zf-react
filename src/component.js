@@ -55,7 +55,21 @@ class Updater {
   }
 }
 
-function shouldUpdate(classInstance, nextState) {
+function shouldUpdate(classInstance, nextProps, nextState) {
+  let willUpdate = true; // 是否要更新，默认值是true
+  if (
+    // 有此方法并且值为false
+    classInstance.shouldComponentUpdate &&
+    !classInstance.shouldComponentUpdate(nextProps, nextState)
+  ) {
+    willUpdate = false;
+  }
+  if (willUpdate && classInstance.componentWillUpdate) {
+    classInstance.componentWillUpdate()
+  }
+  // 不管要不要更新，属性和状态都要更新为最新的
+  if (nextProps) classInstance.props = nextProps
+  classInstance.state = nextProps
   classInstance.state = nextState; // 真正修改实列的状态
   classInstance.forceUpdate(); // 然后调用类组件的updateComponent方法进行更新
 }
@@ -85,6 +99,9 @@ class Component {
     let newRenderVdom = this.render();
     compareTowVdom(oldDOM.parentNode, oldRenderVdom, newRenderVdom);
     this.oldRenderVdom = newRenderVdom;
+    if (this.componentDidUpdate) {
+      this.componentDidUpdate(this.props, this.state)
+    }
   }
 }
 

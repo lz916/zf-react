@@ -1,0 +1,76 @@
+import React from "react";
+import ReactDOM from "react-dom";
+
+class ChildCount extends React.Component {
+  static defaultProps = {
+    name: "childCount",
+  };
+  componentWillMount() {
+    console.log("Children 1.componentWillMount");
+  }
+  render() {
+    console.log("ChildCounter 2.render");
+    return <div>{this.props.count}</div>;
+  }
+  componentDidMount() {
+    console.log("Children 3.componentDidMount");
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log("Children 4.shouldComponentUpdate");
+    return nextProps.count % 3 === 0; // 奇数更新 偶数不更新
+  }
+  componentWillReceiveProps() {
+    console.log("Children 5.componentWillReceiveProps");
+  }
+  componentWillUnmount() {
+    console.log("Children 6.componentWillUnmount");
+  }
+}
+class Counter extends React.Component {
+  static defaultProps = {
+    name: "珠峰",
+  };
+  constructor(props) {
+    super(props);
+    this.state = { number: 0 };
+    console.log("Counter 1.constructor");
+  }
+  componentWillMount() {
+    console.log("Counter 2.componentWillMount");
+  }
+  // 当属性或者状态发生变化的时候，会走此方法来决定是否要渲染更新
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log("Counter 5.shouldComponentUpdate");
+    return nextState.number % 2 === 0; // 奇数更新 偶数不更新
+  }
+
+  componentWillUpdate() {
+    console.log("Counter 6.componentWillUpdate");
+  }
+  componentDidUpdate() {
+    console.log("Counter 7.componentDidUpdate");
+  }
+  handleClick = (event) => {
+    this.setState({
+      number: this.state.number + 1,
+    });
+  };
+
+  render() {
+    console.log("Counter 3.render");
+    return (
+      <div>
+        <div>{this.state.number}</div>
+        {this.state.number === 4 ? null : (
+          <ChildCount count={this.state.number} />
+        )}
+        <button onClick={this.handleClick}>+</button>
+      </div>
+    );
+  }
+  componentDidMount() {
+    console.log("Counter 4.componentDidMount");
+  }
+}
+
+ReactDOM.render(<Counter />, document.getElementById("root"));

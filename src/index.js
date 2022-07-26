@@ -1,48 +1,37 @@
 import React from "react";
 import ReactDOM from "react-dom";
+/**
+ * 不能在函数组件上使用ref，因为他们没有实列
+ */
+function TextInput(props, ref) {
+  console.log(123);
+  console.log(ref);
+  return <input ref={ref} />;
+}
 
-class Counter extends React.Component {
-  static defaultProps = {
-    name: "珠峰",
-  };
+const ForwardTextInput = React.forwardRef(TextInput);
+
+console.log(ForwardTextInput);
+// ForwardedTextInput {$$typeof: Symbol(react.forward_ref), render: TextInput}
+
+class Form extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { number: 0 };
-    console.log("Counter 1.constructor");
-  }
-  componentWillMount() {
-    console.log("Counter 2.componentWillMount");
-  }
-  // 当属性或者状态发生变化的时候，会走此方法来决定是否要渲染更新
-  shouldComponentUpdate(nextProps, nextState) {
-    console.log("Counter 5.shouldComponentUpdate");
-    return nextState.number % 2 === 0; // 奇数更新 偶数不更新
+    this.textInputRef = React.createRef();
   }
 
-  componentWillUpdate() {
-    console.log("Counter 6.componentWillUpdate");
-  }
-  componentDidUpdate() {
-    console.log("Counter 7.componentDidUpdate");
-  }
-  handleClick = (event) => {
-    this.setState({
-      number: this.state.number + 1,
-    });
+  getFormFocus = () => {
+    this.textInputRef.current.focus();
   };
 
   render() {
-    console.log("Counter 3.render");
     return (
-      <div>
-        <div>{this.state.number}</div>
-        <button onClick={this.handleClick}>+</button>
-      </div>
+      <>
+        <ForwardTextInput ref={this.textInputRef} />
+        <button onClick={this.getFormFocus}>获得焦点</button>
+      </>
     );
-  }
-  componentDidMount() {
-    console.log("Counter 4.componentDidMount");
   }
 }
 
-ReactDOM.render(<Counter />, document.getElementById("root"));
+ReactDOM.render(<Form />, document.getElementById("root"));

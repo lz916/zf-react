@@ -1,5 +1,6 @@
 import { wrapToVdom } from "./utils";
 import Component from "./component";
+import { REACT_FORWARD_REF_TYPE } from "./constants";
 /**
  * @param {*} type 类型
  * @param {*} config 配置对象
@@ -12,12 +13,12 @@ function createElement(type, config, children) {
   let ref; // 用来获取虚拟DOM实例的
   let key; // 用来区分同一个父亲的不同儿子的
   if (config) {
-    delete config._source;
-    delete config._self;
+    // delete config._source;
+    // delete config._self;
     ref = config.ref;
-    delete config.ref;
+    // delete config.ref;
     key = config.key;
-    delete config.key;
+    // delete config.key;
   }
   let props = { ...config }; // 没有ref和key的
   if (arguments.length > 3) {
@@ -40,11 +41,15 @@ function createRef() {
   };
 }
 
-function forwardRef(FunctionComponent) {
-  return class extends Component {
-    render() {
-      return FunctionComponent(this.props, this.props.ref);
-    }
+function forwardRef(render) {
+  // return class extends Component {
+  //   render() {
+  //     return FunctionComponent(this.props, this.props.ref);
+  //   }
+  // };
+  return {
+    $$typeof: REACT_FORWARD_REF_TYPE,
+    render,
   };
 }
 
