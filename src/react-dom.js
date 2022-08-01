@@ -23,9 +23,9 @@ function createDom(vdom) {
     dom = document.createTextNode(props.content);
   } else if (typeof type === "function") {
     if (type.isReactComponent) {
-      mountClassComponent(vdom);
+      dom = mountClassComponent(vdom);
     } else {
-      mountFunctionComponent(vdom);
+      dom = mountFunctionComponent(vdom);
     }
   } else {
     dom = document.createElement(type);
@@ -89,7 +89,7 @@ function mountForwardComponent(vdom) {
 
 function updateProps(dom, oldProps, newProps) {
   for (let key in newProps) {
-    console.log(`key:${key}`);
+    // console.log(`key:${key}`);
     if (key === "children") {
       continue;
     }
@@ -103,7 +103,7 @@ function updateProps(dom, oldProps, newProps) {
       // dom[key.toLocaleLowerCase()] = newProps[key];
       addEvent(dom, key.toLocaleLowerCase(), newProps[key]);
     } else {
-      dom[key] = newProps?.[key];
+      dom[key] = newProps[key];
     }
   }
 }

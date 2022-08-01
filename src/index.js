@@ -1,37 +1,37 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "./react-dom1";
+import React from "./react1";
+
 /**
- * 不能在函数组件上使用ref，因为他们没有实列
+ * JSX其实是React的语法糖（javascript+xml html）
  */
-function TextInput(props, ref) {
-  console.log(123);
-  console.log(ref);
-  return <input ref={ref} />;
+// let element = <h1>hello</h1>;
+// 讲过babel转义后
+// let element = React.createElement("div", null, "hello");
+
+// 函数组件其实是一个函数，接受props，返回一个React元素
+function FunctionComponent(props) {
+  return <h1>hello, {props.name}</h1>;
+  //   return React.createElement("div", null, "hello,", props.name);
 }
 
-const ForwardTextInput = React.forwardRef(TextInput);
+let element = React.createElement(FunctionComponent, { name: "lz" });
+console.log(element);
 
-console.log(ForwardTextInput);
-// ForwardedTextInput {$$typeof: Symbol(react.forward_ref), render: TextInput}
+// 所谓的渲染就是按照react元素所描述的结构，创建真实DOM元素，并插入root容器内
+// // 会有ReactDOM来确保浏览器的真实DOM和虚拟DOM一致
+// ReactDOM.render(element, document.getElementById("root"));
+debugger;
+ReactDOM.render(element, document.getElementById("root"));
 
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
-    this.textInputRef = React.createRef();
-  }
-
-  getFormFocus = () => {
-    this.textInputRef.current.focus();
-  };
-
-  render() {
-    return (
-      <>
-        <ForwardTextInput ref={this.textInputRef} />
-        <button onClick={this.getFormFocus}>获得焦点</button>
-      </>
-    );
-  }
+/** 虚拟dom
+ * {
+    "type": "h1",
+    "key": null,
+    "ref": null,
+    "props": {
+        "children": "hello"
+    },
+    "_owner": null,
+    "_store": {}
 }
-
-ReactDOM.render(<Form />, document.getElementById("root"));
+*/
