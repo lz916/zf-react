@@ -13,8 +13,18 @@ function FunctionComponent(props) {
   return <h1>hello, {props.name}</h1>;
   //   return React.createElement("div", null, "hello,", props.name);
 }
+class ClassComponent extends React.Component {
+  render() {
+    return (
+      <h1 style={{ color: "red" }}>
+        <span>hello</span>
+        {this.props.name}
+      </h1>
+    );
+  }
+}
 
-let element = React.createElement(FunctionComponent, { name: "lz" });
+let element = React.createElement(ClassComponent, { name: "lz" });
 console.log(element);
 
 // 所谓的渲染就是按照react元素所描述的结构，创建真实DOM元素，并插入root容器内

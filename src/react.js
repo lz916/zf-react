@@ -11,7 +11,6 @@ import { REACT_FORWARD_REF_TYPE } from "./constants";
 
 function createElement(type, config, children) {
   console.log("type", type);
-  console.log("config", config);
   let ref; // 用来获取虚拟DOM实例的
   let key; // 用来区分同一个父亲的不同儿子的
   if (config) {

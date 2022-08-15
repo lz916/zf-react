@@ -1,4 +1,5 @@
 import { REACT_TEXT } from "./constants";
+import Component from "./component1";
 
 const render = (vdom, container) => {
   const dom = createDOM(vdom);
@@ -7,13 +8,15 @@ const render = (vdom, container) => {
 
 const createDOM = (vdom) => {
   const { type, props } = vdom;
-  console.log("props");
-  console.log(props);
   let dom;
   if (type === REACT_TEXT) {
     dom = document.createTextNode(props.content);
   } else if (typeof type === "function") {
-    dom = mountFunctionComponent(vdom);
+    if (type.isReactComponent) {
+      dom = mountClassComponent(vdom);
+    } else {
+      dom = mountFunctionComponent(vdom);
+    }
   } else {
     dom = document.createElement(type);
   }
@@ -56,8 +59,17 @@ const mountFunctionComponent = (vdom) => {
   return createDOM(renderVdom);
 };
 
+const mountClassComponent = (vdom) => {
+  const { props, type } = vdom;
+  const classInstance = new type(props);
+  const renderVdom = classInstance.render();
+  const dom = createDOM(renderVdom);
+  return dom;
+};
+
 const ReactDOM = {
   render,
+  Component,
 };
 
 export default ReactDOM;
