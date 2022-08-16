@@ -45,11 +45,13 @@ const updateProps = (dom, oldProps, newProps) => {
     }
     if (key === "style") {
       let styleObj = newProps[key];
+      console.log(styleObj);
       for (let attr in styleObj) {
         dom.style[attr] = styleObj[attr];
       }
+    } else {
+      dom[key] = newProps[key];
     }
-    dom[key] = newProps[key];
   }
 };
 

@@ -65,11 +65,11 @@ function shouldUpdate(classInstance, nextProps, nextState) {
     willUpdate = false;
   }
   if (willUpdate && classInstance.componentWillUpdate) {
-    classInstance.componentWillUpdate()
+    classInstance.componentWillUpdate();
   }
   // 不管要不要更新，属性和状态都要更新为最新的
-  if (nextProps) classInstance.props = nextProps
-  classInstance.state = nextProps
+  if (nextProps) classInstance.props = nextProps;
+  classInstance.state = nextProps;
   classInstance.state = nextState; // 真正修改实列的状态
   classInstance.forceUpdate(); // 然后调用类组件的updateComponent方法进行更新
 }
@@ -86,7 +86,7 @@ class Component {
     this.updater.addState(partialState, callback);
   }
   /**
-   * 组件时如何更新得
+   * 组件是如何更新得
    * 1. 获取 老的虚拟dom react元素
    * 2. 根据最新的属性和状态计算新的虚拟dom
    * 3. 然后进行比较，查找差异，然后把这些差异同步到真实DOM上
@@ -96,11 +96,14 @@ class Component {
     let oldRenderVdom = this.oldRenderVdom;
     // 根据老的虚拟dom查到老的真实DOM
     let oldDOM = findDOM(oldRenderVdom);
+    if (this.constructor.contextType) {
+      this.context = this.constructor.contextType.Provider._value;
+    }
     let newRenderVdom = this.render();
     compareTowVdom(oldDOM.parentNode, oldRenderVdom, newRenderVdom);
     this.oldRenderVdom = newRenderVdom;
     if (this.componentDidUpdate) {
-      this.componentDidUpdate(this.props, this.state)
+      this.componentDidUpdate(this.props, this.state);
     }
   }
 }

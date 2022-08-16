@@ -61,6 +61,9 @@ function mountClassComponent(vdom) {
   let componentProps = { ...defaultProps, ...props };
   const classInstance = new type(componentProps);
   vdom.classInstance = classInstance;
+  if (type.contextType) {
+    classInstance.context = type.contextType.Provider._value;
+  }
   if (classInstance.componentWillMount) classInstance.componentWillMount();
   let renderVdom = classInstance.render();
   if (classInstance.componentDidMount) classInstance.componentDidMount();

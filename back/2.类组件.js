@@ -13,7 +13,7 @@ class ClassComponent extends React.Component {
   render() {
     return (
       <h1 style={{ color: "red" }}>
-        <span>hello</span>
+        <span>hello，</span>
         {this.props.name}
       </h1>
     );
