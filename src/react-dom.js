@@ -1,19 +1,137 @@
 import { REACT_TEXT } from "./constants";
 import addEvent from "./event";
 import { REACT_FORWARD_REF_TYPE } from "./constants";
+import { callback_401 } from "../../../work/starship-web/libs/utils/src";
 /**
  * 把虚拟DOM转成真是DOM插入到容器中
  * @param {} vdom
  * @param {*} container
  */
 
+let hookState = [];
+let hookIndex = 0;
+let scheduleUpdate; // 调度更新方法
+
 function render(vdom, container) {
+  mount(vdom, container);
+  scheduleUpdate = () => {
+    hookIndex = 0;
+    compareTowVdom(container, vdom, vdom);
+    console.log("开始更新");
+  };
+}
+
+function mount(vdom, container) {
   const newDom = createDom(vdom);
   container.appendChild(newDom);
   if (newDom.componentDidMount) newDom.componentDidMount();
 }
 
+export function useState(initialState) {
+  hookState[hookIndex] = hookState[hookIndex] || initialState;
+  let currentIndex = hookIndex;
+  function setState(newState) {
+    hookState[currentIndex] = newState;
+    scheduleUpdate();
+  }
+  return [hookState[hookIndex++], setState];
+}
+
+export function useMemo(factory, deps) {
+  if (hookState[hookIndex]) {
+    // 说明不是第一次更新
+    let [lastMemo, lastDeps] = hookState[hookIndex];
+    let everySame = deps.every((item, index) => item === lastDeps[index]);
+    if (everySame) {
+      hookIndex++;
+      return lastMemo;
+    } else {
+      let newMemo = factory();
+      hookState[hookIndex++] = [newMemo, deps];
+      return newMemo;
+    }
+  } else {
+    let newMemo = factory();
+    hookState[hookIndex] = [newMemo, deps];
+    return newMemo;
+  }
+}
+
+export function useCallback(callback, deps) {
+  if (hookState[hookIndex]) {
+    // 说明不是第一次更新
+    let [lastCallback, lastDeps] = hookState[hookIndex];
+    let everySame = deps.every((item, index) => item === lastDeps[index]);
+    if (everySame) {
+      hookIndex++;
+      return lastCallback;
+    } else {
+      hookState[hookIndex++] = [callback, deps];
+      return callback;
+    }
+  } else {
+    hookState[hookIndex] = [callback, deps];
+    return callback;
+  }
+}
+
+export function useEffect(callback, deps) {
+  if (hookState[hookIndex]) {
+    const [destory, lastDeps] = hookState[hookIndex];
+    let everySame = deps.every((item, index) => item === lastDeps[index]);
+    if (everySame) {
+      hookIndex++;
+    } else {
+      // 销毁函数每次都是在下一次执行的时候才会触发执行
+      destory && destory();
+      setTimeout(() => {
+        const destory = callback();
+        hookState[hookIndex++] = [destory, deps];
+      });
+    }
+  } else {
+    // 初次渲染的时候，开启一个宏任务，在宏任务里执行callback,保存小孩函数和依赖数组
+    setTimeout(() => {
+      const destory = callback();
+      hookState[hookIndex++] = [destory, deps];
+    });
+  }
+}
+
+export function useLayoutEffect(callback, deps) {
+  if (hookState[hookIndex]) {
+    const [destory, lastDeps] = hookState[hookIndex];
+    let everySame = deps.every((item, index) => item === lastDeps[index]);
+    if (everySame) {
+      hookIndex++;
+    } else {
+      // 销毁函数每次都是在下一次执行的时候才会触发执行
+      destory && destory();
+      queueMicrotask(() => {
+        const destory = callback();
+        hookState[hookIndex++] = [destory, deps];
+      });
+    }
+  } else {
+    // 初次渲染的时候，开启一个宏任务，在宏任务里执行callback,保存小孩函数和依赖数组
+    queueMicrotask(() => {
+      const destory = callback();
+      hookState[hookIndex++] = [destory, deps];
+    });
+  }
+}
+
+export function useRef() {
+  if (hookState[hookIndex]) {
+    return hookState[hookIndex]
+  } else {
+    hookState[hookIndex] = {current: null}
+    return hookState[hookIndex++]
+  }
+}
+
 function createDom(vdom) {
+  console.log("vdom", vdom);
   let { props, type, ref } = vdom;
   let dom;
   if (type && type.$$typeof === REACT_FORWARD_REF_TYPE) {
@@ -49,6 +167,7 @@ function createDom(vdom) {
 }
 
 function reconcileChildren(childrenVdom, parentDOM) {
+  console.log("childrenVdom", childrenVdom);
   for (let i = 0; i < childrenVdom.length; i++) {
     let childVdom = childrenVdom[i];
     render(childVdom, parentDOM);
@@ -137,7 +256,9 @@ export const findDOM = (vdom) => {
 export const compareTowVdom = (parentDOM, oldVdom, newVdom, nextDOM) => {
   let oldDOM = findDOM(oldVdom);
   let newDOM = createDom(newVdom);
-  parentDOM.reconcileChildren(newDOM, oldDOM);
+  console.log("oldDOM", oldDOM);
+  console.log();
+  reconcileChildren(newDOM, oldDOM);
   if (!oldVdom && !newVdom) {
     // 如果老的虚拟dom是null,新的虚拟也是null
     return null;

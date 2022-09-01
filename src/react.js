@@ -1,6 +1,11 @@
 import { wrapToVdom } from "./utils";
 import Component from "./component";
-import { REACT_FORWARD_REF_TYPE } from "./constants";
+import { useState, useEffect, useMemo, useCallback } from "./react-dom";
+import {
+  REACT_CONTEXT,
+  REACT_FORWARD_REF_TYPE,
+  REACT_PROVIDER,
+} from "./constants";
 /**
  * @param {*} type 类型
  * @param {*} config 配置对象
@@ -55,16 +60,25 @@ function forwardRef(render) {
 }
 
 function createContext() {
-  const Provider = ({ value, children }) => {
-    Provider._value = value;
-    return children;
+  // const Provider = ({ value, children }) => {
+  //   Provider._value = value;
+  //   return children;
+  // };
+  // const Consumer = ({ children }) => {
+  //   return children(Provider._value);
+  // };
+  // return {
+  //   Provider,
+  //   Consumer,
+  // };
+  let context = { $$typeof: REACT_CONTEXT };
+  context.Provider = {
+    $$typeof: REACT_PROVIDER,
+    _context: context,
   };
-  const Consumer = ({ children }) => {
-    return children(Provider._value);
-  };
-  return {
-    Provider,
-    Consumer,
+  context.Consumer = {
+    $$typeof: REACT_CONTEXT,
+    _context: context,
   };
 }
 
@@ -74,6 +88,10 @@ const React = {
   createRef,
   forwardRef,
   createContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
 };
 
 export default React;

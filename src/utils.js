@@ -6,6 +6,7 @@ import { REACT_TEXT } from "./constants";
  * @returns
  */
 export function wrapToVdom(element) {
+  console.log("element", element);
   if (typeof element === "string" || element === "number") {
     return {
       type: REACT_TEXT,

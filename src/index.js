@@ -1,44 +1,31 @@
 import React from "react";
 import ReactDOM from "react-dom";
-class Parent extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      count: 0,
+function Counter() {
+  console.warn("重新执行");
+  let [number, setNumber] = React.useState(0);
+  const number1 = 0;
+  console.warn("number", number);
+  console.warn("number1", number1);
+
+  React.useEffect(() => {
+    console.log("开启一个新的定时器");
+    const timer = setInterval(() => {
+      console.log("执行定时器", number);
+      setNumber(number + 1);
+      number1++;
+    }, 1000);
+    return () => {
+      console.log("清空定时器", number);
+      clearInterval(timer);
     };
-  }
-  render() {
-    console.log("父组件渲染");
-    return <Child />;
-  }
+  }, [number]);
+
+  return (
+    <div>
+      <p>{number}</p>
+      {/* <button onClick={handleClick}>+</button> */}
+    </div>
+  );
 }
 
-class Child extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selfCount: 1,
-    };
-    this.render();
-  }
-  render() {
-    console.log("子组件渲染");
-    return (
-      <div>
-        <div>父组件传进来的count: {this.props.count}</div>
-        <div>自己的count: {this.state.selfCount}</div>
-        <button
-          onClick={() => {
-            this.setState({
-              selfCount: this.state.selfCount + 1,
-            });
-          }}
-        >
-          更新自己的count
-        </button>
-      </div>
-    );
-  }
-}
-
-ReactDOM.render(<Parent />, document.getElementById("root"));
+ReactDOM.render(<Counter />, document.getElementById("root"));
