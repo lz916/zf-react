@@ -1,5 +1,6 @@
 export default {
   type: "div",
+<<<<<<< HEAD
   key: null,
   ref: null,
   props: {
@@ -64,4 +65,37 @@ export default {
   },
   _owner: null,
   _store: {},
+=======
+  props: {
+    id: "A1",
+    children: [
+      {
+        type: "div",
+        props: {
+          id: "B1",
+          children: [
+            {
+              type: "div",
+              props: {
+                id: "C1",
+              },
+            },
+            {
+              type: "div",
+              props: {
+                id: "C2",
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: "div",
+        props: {
+          id: "B2",
+        },
+      },
+    ],
+  },
+>>>>>>> c6e3860 (feat: fiber)
 };
