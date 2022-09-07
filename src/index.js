@@ -1,31 +1,105 @@
-import React from "react";
-import ReactDOM from "react-dom";
-function Counter() {
-  console.warn("重新执行");
-  let [number, setNumber] = React.useState(0);
-  const number1 = 0;
-  console.warn("number", number);
-  console.warn("number1", number1);
+import element from "./element.js";
 
-  React.useEffect(() => {
-    console.log("开启一个新的定时器");
-    const timer = setInterval(() => {
-      console.log("执行定时器", number);
-      setNumber(number + 1);
-      number1++;
-    }, 1000);
-    return () => {
-      console.log("清空定时器", number);
-      clearInterval(timer);
-    };
-  }, [number]);
+console.log("element", element);
 
-  return (
-    <div>
-      <p>{number}</p>
-      {/* <button onClick={handleClick}>+</button> */}
-    </div>
-  );
+let container = document.getElementById("root");
+
+// 下一个工作单元
+// fiber其实也是要给普通得js对象
+let nextUnitOfWork = {
+  stateNode: container, // 此fiber对应得Dom节点
+  props: {
+    children: [element], // fiber属性
+  },
+};
+
+function workLoop(deadline) {
+  // 如果有当前得工作单元，就执行它，并返回一个工作单元
+  while (nextUnitOfWork && deadline.timeRemaining() > 0) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+  }
+}
+/**c
+ * beginWork 1.创建此fiber的真实DOM 通过虚拟DOM创建fiber树结构
+ * @param {*} workingInProgressFiber
+ */
+function performUnitOfWork(workingInProgressFiber) {
+  // 1创建真实DOM，并没有挂载，2创建fiber子树
+  beginWork(workingInProgressFiber);
+  if (workingInProgressFiber) {
+    return workingInProgressFiber.child; // 如果有儿子返回儿子
+  }
+  while (workingInProgressFiber) {
+    // 如果没有儿子，当前节点其实已经结束了
+    completeUnitOfWork(workingInProgressFiber);
+    if (workingInProgressFiber.sibling) {
+      return workingInProgressFiber.sibling; // 如果有弟弟返回弟弟
+    }
+    workingInProgressFiber = workingInProgressFiber.return; // 先指向父亲
+  }
 }
 
-ReactDOM.render(<Counter />, document.getElementById("root"));
+function beginWork(workingInProgressFiber) {
+  debugger;
+  console.log("beginWork", workingInProgressFiber.props.id);
+  if (!workingInProgressFiber.stateNode) {
+    workingInProgressFiber.stateNode = document.createElement(
+      workingInProgressFiber.type
+    );
+  }
+  for (let key in workingInProgressFiber.props) {
+    if (key !== "children") {
+      workingInProgressFiber.stateNode[key] = workingInProgressFiber.props[key];
+    }
+  } // 在beginWork里是不会挂载的
+  // 创建子Fiber，返回第一个儿子
+  let previousFiber;
+  // children是一个虚拟DOM的数组
+  workingInProgressFiber.props.children.forEach((child, index) => {
+    let childFiber = {
+      type: child.type, //DOM节点类型
+      props: child.props,
+      return: workingInProgressFiber, // return 是一个指针，指向父元素，让父亲完成
+      effectTag: "PLACEMENT", // 这个是fiber对应的DOM节点需要被插入到父DOM中去
+      nextEffect: null, // 下一个有副作用的节点
+    };
+    if (index === 0) {
+      workingInProgressFiber.child = childFiber;
+    } else {
+      previousFiber.sibling = childFiber;
+    }
+    previousFiber = childFiber;
+  });
+}
+
+function completeUnitOfWork(workingInProgressFiber) {
+  console.log("completeUnitOfWork", workingInProgressFiber.props.id);
+  // 构建副作用链effectList 只有那些有副作用的节点
+  // firstEffect 指向第一个由副作用的子节点
+  // lastEffect 指向最后一个有副作用的子节点
+  let returnFiber = workingInProgressFiber.return;
+  if (returnFiber) {
+    // 把当前fiber的有副作用子链表挂载到父亲身上
+    if (!returnFiber.firstEffect) {
+      returnFiber.firstEffect = workingInProgressFiber.firstEffect;
+    }
+    if (workingInProgressFiber.lastEffect) {
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = workingInProgressFiber.firstEffect;
+      }
+      returnFiber.lastEffect = workingInProgressFiber.lastEffect;
+    }
+    // 再把自己挂载进去
+    if (workingInProgressFiber.effectTag) {
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = workingInProgressFiber;
+      } else {
+        returnFiber.firstEffect = workingInProgressFiber;
+      }
+      // returnFiber.lastEffect;
+    }
+  }
+}
+
+// 告诉浏览器在空闲得时候执行workLoop
+requestIdleCallback(workLoop);
