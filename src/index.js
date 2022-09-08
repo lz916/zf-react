@@ -1,10 +1,5 @@
 import element from "./element.js";
-
-<<<<<<< HEAD
-console.log("element", element);
-=======
-console.log("element1", element);
->>>>>>> c6e3860 (feat: fiber)
+console.log("element11", element);
 
 let container = document.getElementById("root");
 
@@ -18,13 +13,6 @@ let nextUnitOfWork = {
 };
 
 function workLoop(deadline) {
-<<<<<<< HEAD
-  // 如果有当前得工作单元，就执行它，并返回一个工作单元
-  while (nextUnitOfWork && deadline.timeRemaining() > 0) {
-    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-  }
-}
-=======
   debugger;
   // 如果有当前得工作单元，就执行它，并返回一个工作单元
   while (nextUnitOfWork) {
@@ -36,21 +24,17 @@ function workLoop(deadline) {
 }
 
 function commitRoot() {}
->>>>>>> c6e3860 (feat: fiber)
 /**c
  * beginWork 1.创建此fiber的真实DOM 通过虚拟DOM创建fiber树结构
  * @param {*} workingInProgressFiber
  */
 function performUnitOfWork(workingInProgressFiber) {
   // 1创建真实DOM，并没有挂载，2创建fiber子树
-<<<<<<< HEAD
-=======
-  console.log("workingInProgressFiber", workingInProgressFiber);
->>>>>>> c6e3860 (feat: fiber)
   beginWork(workingInProgressFiber);
-  if (workingInProgressFiber) {
+  if (workingInProgressFiber.child) {
     return workingInProgressFiber.child; // 如果有儿子返回儿子
   }
+  console.log("workingInProgressFiber", workingInProgressFiber);
   while (workingInProgressFiber) {
     // 如果没有儿子，当前节点其实已经结束了
     completeUnitOfWork(workingInProgressFiber);
@@ -62,10 +46,6 @@ function performUnitOfWork(workingInProgressFiber) {
 }
 
 function beginWork(workingInProgressFiber) {
-<<<<<<< HEAD
-  debugger;
-=======
->>>>>>> c6e3860 (feat: fiber)
   console.log("beginWork", workingInProgressFiber.props.id);
   if (!workingInProgressFiber.stateNode) {
     workingInProgressFiber.stateNode = document.createElement(
@@ -77,18 +57,11 @@ function beginWork(workingInProgressFiber) {
       workingInProgressFiber.stateNode[key] = workingInProgressFiber.props[key];
     }
   } // 在beginWork里是不会挂载的
-<<<<<<< HEAD
-  // 创建子Fiber，返回第一个儿子
-  let previousFiber;
-  // children是一个虚拟DOM的数组
-  workingInProgressFiber.props.children.forEach((child, index) => {
-=======
 
   // 创建子Fiber，返回第一个儿子
   let previousFiber;
   // children是一个虚拟DOM的数组
   workingInProgressFiber?.props?.children?.forEach((child, index) => {
->>>>>>> c6e3860 (feat: fiber)
     let childFiber = {
       type: child.type, //DOM节点类型
       props: child.props,
@@ -129,11 +102,7 @@ function completeUnitOfWork(workingInProgressFiber) {
       } else {
         returnFiber.firstEffect = workingInProgressFiber;
       }
-<<<<<<< HEAD
-      // returnFiber.lastEffect;
-=======
       returnFiber.lastEffect = workingInProgressFiber;
->>>>>>> c6e3860 (feat: fiber)
     }
   }
 }
