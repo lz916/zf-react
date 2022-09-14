@@ -12,10 +12,12 @@ let nextUnitOfWork = {
   },
 };
 
+let workingInProgress;
+
 function workLoop(deadline) {
-  debugger;
   // 如果有当前得工作单元，就执行它，并返回一个工作单元
   while (nextUnitOfWork) {
+    console.log("nextUnitOfWork", nextUnitOfWork);
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
   }
   if (!nextUnitOfWork) {
@@ -29,12 +31,12 @@ function commitRoot() {}
  * @param {*} workingInProgressFiber
  */
 function performUnitOfWork(workingInProgressFiber) {
+  console.log("workingInProgressFiber", workingInProgressFiber);
   // 1创建真实DOM，并没有挂载，2创建fiber子树
   beginWork(workingInProgressFiber);
   if (workingInProgressFiber.child) {
     return workingInProgressFiber.child; // 如果有儿子返回儿子
   }
-  console.log("workingInProgressFiber", workingInProgressFiber);
   while (workingInProgressFiber) {
     // 如果没有儿子，当前节点其实已经结束了
     completeUnitOfWork(workingInProgressFiber);
